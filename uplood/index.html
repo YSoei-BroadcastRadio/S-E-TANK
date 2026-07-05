@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Y. SBC S-E-TANK - 管理室</title>
+    <title>Y. SBC S-E-TANK [管理パネル]</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
@@ -18,16 +18,13 @@
 
         .scanlines {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(
                 to bottom,
-                rgba(255,255,255,0),
-                rgba(255,255,255,0) 50%,
-                rgba(0,0,0,0.08) 50%,
-                rgba(0,0,0,0.08)
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.1) 50%,
+                rgba(0, 0, 0, 0.1)
             );
             background-size: 100% 4px;
             pointer-events: none;
@@ -42,10 +39,12 @@
             border-bottom: 1px solid #404040;
             box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.3);
             padding: 3px;
+            position: relative;
+            z-index: 10;
         }
 
         .win-titlebar {
-            background: linear-gradient(90deg, #0a246a 0%, #a6caf0 100%);
+            background: linear-gradient(90deg, #800000 0%, #ff8080 100%); /* 投稿用は赤系のタイトルバー */
             color: white;
             font-weight: bold;
             padding: 2px 5px;
@@ -70,6 +69,15 @@
             color: #000;
             cursor: pointer;
             box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+        }
+        .win-title-btn:active {
+            border-top: 1px solid #404040;
+            border-left: 1px solid #404040;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
+            padding-top: 2px;
+            padding-left: 1px;
         }
 
         .win-btn {
@@ -113,262 +121,186 @@
             margin: 8px 0;
         }
 
-        .win-input {
-            background-color: #fff;
-            border-top: 1px solid #808080;
-            border-left: 1px solid #808080;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            box-shadow: inset 1px 1px 0 #000;
-            padding: 2px 4px;
-            font-family: inherit;
-            font-size: 14px;
-        }
-        .win-input:focus {
-            outline: none;
-            background-color: #e6f2ff;
-        }
-
         .hidden-page {
             display: none !important;
-        }
-
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="min-h-screen p-2 md:p-8 flex justify-center items-start">
     <div class="scanlines"></div>
 
-    <div class="win-window w-full max-w-2xl flex flex-col mt-4 relative z-10">
+    <div class="win-window w-full max-w-4xl flex flex-col mt-4">
         
         <div class="win-titlebar">
             <div class="flex items-center gap-1">
-                <i class="ph-fill ph-gear text-lg text-gray-300"></i>
-                <span>Y. SBC S-E-TANK [投稿・管理用プロンプト]</span>
+                <i class="ph-fill ph-upload-simple text-lg text-white"></i>
+                <span>Y. SBC S-E-TANK [クリエイター専用パネル]</span>
             </div>
             <div class="flex gap-1">
-                <button class="win-title-btn">_</button>
-                <button class="win-title-btn">□</button>
                 <button class="win-title-btn font-bold">×</button>
             </div>
         </div>
 
         <div class="flex gap-2 p-2 pb-0 overflow-x-auto" id="tab-container">
-            <button id="tab-auth" class="win-btn active-tab px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('auth')">システムログイン</button>
-            <button id="tab-profile" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="switchPage('profile')">マイページ</button>
+            <button id="tab-auth" class="win-btn active-tab px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('auth')">認証(ログイン/登録)</button>
+            <button id="tab-mypage" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="switchPage('mypage')">マイページ</button>
             <button id="tab-upload" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="switchPage('upload')">音源アップロード</button>
-            <div class="flex-grow"></div>
-            <button id="btn-logout" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="doLogout()">ログアウト</button>
         </div>
 
-        <div class="win-inset p-3 m-2 mt-0 flex-grow" style="min-height: 50vh;">
+        <div class="win-inset p-3 m-2 mt-0 flex-grow" style="min-height: 60vh;">
             
             <div id="page-auth" class="space-y-4 p-2 text-sm">
                 <div class="flex items-start gap-4 mb-4">
-                    <i class="ph-fill ph-lock-key text-5xl text-gray-500"></i>
+                    <i class="ph-fill ph-lock-key text-5xl text-yellow-600"></i>
                     <div>
                         <h2 class="font-bold text-lg mb-2">認証が必要です</h2>
-                        <p>音源を投稿するには、部員用アカウントでログインしてください。</p>
-                        <p class="text-xs text-red-600 mt-1">※ @soei.ed.jp のメールアドレスのみ登録・ログイン可能です。</p>
+                        <p>音源のアップロードを行うには、SBC部員アカウントでのログインが必要です。<br>
+                        メールアドレスは必ず <strong>...@soei.ed.jp</strong> のものを使用してください。</p>
                     </div>
                 </div>
 
-                <div class="win-divider"></div>
-
-                <div class="flex flex-col md:flex-row gap-6">
-                    <div class="flex-1 bg-[#ece9d8] p-4 border border-gray-400">
-                        <h3 class="font-bold mb-3 border-b border-gray-400 pb-1">既存アカウントでログイン</h3>
-                        <form id="login-form" class="space-y-3" onsubmit="handleLogin(event)">
-                            <div>
-                                <label class="block mb-1">メールアドレス:</label>
-                                <input type="email" id="login-email" class="win-input w-full" placeholder="xxxx@soei.ed.jp" required>
-                            </div>
-                            <div>
-                                <label class="block mb-1">パスワード:</label>
-                                <input type="password" id="login-password" class="win-input w-full" required>
-                            </div>
-                            <div class="pt-2 text-right">
-                                <button type="submit" class="win-btn px-6 py-1">ログイン</button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="flex-1 bg-[#ece9d8] p-4 border border-gray-400">
-                        <h3 class="font-bold mb-3 border-b border-gray-400 pb-1">初めての方 (新規登録)</h3>
-                        <form id="register-form" class="space-y-3" onsubmit="handleRegister(event)">
-                            <div>
-                                <label class="block mb-1">学校用メールアドレス:</label>
-                                <input type="email" id="reg-email" class="win-input w-full" placeholder="xxxx@soei.ed.jp" required>
-                            </div>
-                            <div>
-                                <label class="block mb-1">パスワード設定:</label>
-                                <input type="password" id="reg-password" class="win-input w-full" required>
-                            </div>
-                            <div class="pt-2 text-right">
-                                <button type="submit" class="win-btn px-6 py-1">新規登録</button>
-                            </div>
-                        </form>
-                    </div>
+                <div class="bg-[#ece9d8] p-4 border border-gray-400 max-w-md mx-auto">
+                    <form id="auth-form" class="space-y-3">
+                        <div>
+                            <label class="block mb-1">学校用メールアドレス:</label>
+                            <input type="email" id="auth-email" required placeholder="xxx@soei.ed.jp" class="win-inset px-2 py-1 w-full focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block mb-1">パスワード:</label>
+                            <input type="password" id="auth-password" required class="win-inset px-2 py-1 w-full focus:outline-none">
+                        </div>
+                        <div class="flex gap-2 pt-2">
+                            <button type="button" onclick="handleAuth('login')" class="win-btn px-4 py-1 w-1/2">ログイン</button>
+                            <button type="button" onclick="handleAuth('register')" class="win-btn px-4 py-1 w-1/2">初回登録</button>
+                        </div>
+                        <p id="auth-error" class="text-red-600 font-bold text-xs mt-2 text-center"></p>
+                    </form>
                 </div>
             </div>
 
-            <div id="page-profile" class="hidden-page space-y-4 p-2 text-sm">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="ph-fill ph-identification-card text-2xl text-blue-700"></i>
-                    <h2 class="font-bold text-lg">プロフィールの設定</h2>
+            <div id="page-mypage" class="hidden-page space-y-4 p-2 text-sm">
+                <div class="flex justify-between items-end border-b border-gray-400 pb-1 mb-4">
+                    <h2 class="font-bold text-lg">クリエイター プロフィール設定</h2>
+                    <button onclick="logout()" class="win-btn px-3 py-1 text-xs">ログアウト</button>
                 </div>
-                <p class="text-xs mb-2">ここで設定した情報は、閲覧用ページの「作成者一覧」に表示されます。<br>初回登録時は必ず入力してください。</p>
 
-                <div class="bg-[#ece9d8] p-4 border border-gray-400">
-                    <form id="profile-form" class="space-y-4" onsubmit="handleProfileSave(event)">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block font-bold mb-1">クリエイター名 (必須):</label>
-                                <input type="text" id="prof-name" class="win-input w-full" required placeholder="例: 豆腐さん">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1">入学年度 (西暦):</label>
-                                <input type="number" id="prof-year" class="win-input w-full" required min="2000" max="2050" placeholder="例: 2024">
-                            </div>
+                <form id="profile-form" class="bg-[#ece9d8] p-4 border border-gray-400 max-w-lg mx-auto space-y-3" onsubmit="updateProfile(event)">
+                    <p class="text-xs mb-4 text-blue-800">※ 初回ログイン時は必ずプロフィールを設定してください。この情報は「作成者一覧」に表示されます。</p>
+                    
+                    <div>
+                        <label class="block mb-1">表示名 (必須):</label>
+                        <input type="text" id="prof-name" required class="win-inset px-2 py-1 w-full focus:outline-none">
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label class="block mb-1">入学年度 (西暦):</label>
+                            <input type="number" id="prof-year" required min="2000" max="2100" class="win-inset px-2 py-1 w-full focus:outline-none">
                         </div>
+                        <div class="w-1/2">
+                            <label class="block mb-1">ルート:</label>
+                            <select id="prof-route" class="win-inset px-2 py-1 w-full focus:outline-none bg-white">
+                                <option value="内進生">内進生</option>
+                                <option value="高入生">高入生</option>
+                            </select>
+                        </div>
+                    </div>
 
-                        <div>
-                            <label class="block font-bold mb-1">区分:</label>
-                            <div class="flex gap-4 items-center">
-                                <label class="flex items-center gap-1 cursor-pointer">
-                                    <input type="radio" name="prof-type" value="内進生" checked> 内進生
-                                </label>
-                                <label class="flex items-center gap-1 cursor-pointer">
-                                    <input type="radio" name="prof-type" value="高入生"> 高入生
-                                </label>
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block mb-1">軽い自己紹介:</label>
+                        <textarea id="prof-bio" rows="3" class="win-inset px-2 py-1 w-full focus:outline-none resize-none"></textarea>
+                    </div>
 
-                        <div>
-                            <label class="block font-bold mb-1">軽い自己紹介:</label>
-                            <textarea id="prof-bio" class="win-input w-full h-24 resize-none" placeholder="得意なジャンルや、好きなものなどを書いてください。"></textarea>
-                        </div>
-
-                        <div class="pt-2 text-right win-divider border-t border-[#808080] border-b-0 border-transparent">
-                            <button type="submit" class="win-btn px-8 py-2 font-bold" id="btn-save-profile">情報を保存する</button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="flex justify-end pt-2">
+                        <button type="submit" id="prof-submit-btn" class="win-btn px-6 py-1 font-bold">適用(A)</button>
+                    </div>
+                </form>
             </div>
 
             <div id="page-upload" class="hidden-page space-y-4 p-2 text-sm">
-                <div class="flex items-center gap-2 mb-2">
-                    <i class="ph-fill ph-upload-simple text-2xl text-green-700"></i>
-                    <h2 class="font-bold text-lg">音源データのアップロード</h2>
-                </div>
-                
-                <div class="bg-[#ffffe1] border border-black p-2 text-xs shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
-                    <i class="ph-fill ph-warning-circle text-yellow-600"></i>
-                    著作権フリーの素材や、自身で作成したオリジナルの音源のみアップロードしてください。
-                </div>
+                <h2 class="font-bold border-b border-gray-400 pb-1 text-lg mb-4">新規音源のアップロード</h2>
 
-                <div class="bg-[#ece9d8] p-4 border border-gray-400">
-                    <form id="upload-form" class="space-y-4" onsubmit="handleUpload(event)">
-                        
-                        <div>
-                            <label class="block font-bold mb-1">音源ファイル (.mp3, .wav等):</label>
-                            <div class="flex items-center gap-2">
-                                <input type="file" id="up-file" accept="audio/*" class="win-input w-full p-1 bg-white" required>
-                            </div>
-                            <p class="text-[10px] text-gray-600 mt-1">※アップロードされたファイルは自動的にCloudflare R2に保存され、配信URLが発行されます。</p>
-                        </div>
+                <form id="upload-form" class="bg-[#ece9d8] p-4 border border-gray-400 max-w-lg mx-auto space-y-4" onsubmit="handleUpload(event)">
+                    
+                    <div class="win-inset p-3 bg-white">
+                        <label class="block mb-1 font-bold">1. 音源ファイル (.mp3, .wav 等)</label>
+                        <input type="file" id="up-file" required accept="audio/*" class="w-full text-xs">
+                    </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block font-bold mb-1">曲名 / タイトル:</label>
-                                <input type="text" id="up-title" class="win-input w-full" required placeholder="例: とぼけ.mp3">
-                            </div>
-                            <div>
-                                <label class="block font-bold mb-1">ジャンル・用途:</label>
-                                <select id="up-genre" class="win-input w-full h-[26px]">
-                                    <option value="SE / 感情表現">SE / 感情表現</option>
-                                    <option value="SE / シーン効果音">SE / シーン効果音</option>
-                                    <option value="SE / 人物音">SE / 人物音</option>
-                                    <option value="SE / 環境音">SE / 環境音</option>
-                                    <option value="BGM / 明るい">BGM / 明るい</option>
-                                    <option value="BGM / 暗い・シリアス">BGM / 暗い・シリアス</option>
-                                    <option value="BGM / 日常">BGM / 日常</option>
-                                    <option value="その他">その他</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div>
+                        <label class="block mb-1 font-bold">2. 曲名・ファイル名</label>
+                        <input type="text" id="up-title" required placeholder="例: ファンファーレ.mp3" class="win-inset px-2 py-1 w-full focus:outline-none">
+                    </div>
 
-                        <div class="pt-4 text-right win-divider border-t border-[#808080] border-b-0 border-transparent">
-                            <button type="submit" class="win-btn px-8 py-2 font-bold flex items-center justify-center gap-2 ml-auto" id="btn-do-upload">
-                                <i class="ph-bold ph-upload"></i> アップロード開始
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div>
+                        <label class="block mb-1 font-bold">3. ジャンル・カテゴリ</label>
+                        <input type="text" id="up-genre" required placeholder="例: SE / 感情表現" class="win-inset px-2 py-1 w-full focus:outline-none">
+                    </div>
+
+                    <div class="win-divider"></div>
+
+                    <div class="flex items-center justify-between">
+                        <span id="upload-status" class="font-bold text-blue-700"></span>
+                        <button type="submit" id="up-submit-btn" class="win-btn px-8 py-2 font-bold flex items-center gap-2">
+                            <i class="ph-bold ph-upload-simple"></i> 送信(S)
+                        </button>
+                    </div>
+                </form>
             </div>
 
         </div>
 
         <div class="mt-1 border-t border-[#808080] pt-1 px-2 text-xs flex justify-between bg-[#d4d0c8]">
-            <span id="status-bar-text">認証待ち</span>
-            <span class="win-inset px-2 py-px shadow-none" id="status-user">未ログイン</span>
+            <span id="statusbar-text">未ログイン状態です</span>
         </div>
     </div>
-    
+
     <div id="win-message-box" class="fixed inset-0 bg-transparent flex items-center justify-center z-[100] hidden">
         <div class="win-window w-80 shadow-[2px_2px_10px_rgba(0,0,0,0.5)] relative bg-[#d4d0c8]">
             <div class="win-titlebar">
-                <span id="msg-title">メッセージ</span>
-                <button class="win-title-btn font-bold" onclick="closeMessage()">×</button>
+                <span id="msg-title">情報</span>
+                <button type="button" class="win-title-btn font-bold" onclick="closeMessage()">×</button>
             </div>
             <div class="p-4 flex flex-col items-center text-sm">
                 <div class="flex items-center gap-4 mb-6 w-full">
-                    <i id="msg-icon" class="ph-fill ph-info text-4xl text-blue-500 drop-shadow-sm"></i>
+                    <i id="msg-icon" class="ph-fill ph-info text-4xl text-blue-600 drop-shadow-sm"></i>
                     <p id="win-message-text" class="flex-grow font-bold"></p>
                 </div>
-                <button class="win-btn px-8 py-1" onclick="closeMessage()">OK</button>
+                <button type="button" class="win-btn px-8 py-1" onclick="closeMessage()">OK</button>
             </div>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = 'https://s-e-tank-api.ataro-999-qqq.workers.dev'; 
+        const API_BASE_URL = 'https://api.your-domain.workers.dev'; 
         
-        let currentUser = null;
+        let authToken = localStorage.getItem('sbc_auth_token');
+
+        // --- 初期化処理 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (authToken) {
+                loadProfile();
+            }
+        });
 
         function switchPage(pageId) {
-            const pages = ['auth', 'profile', 'upload'];
-            
+            const pages = ['auth', 'mypage', 'upload'];
             pages.forEach(id => {
                 const pageEl = document.getElementById('page-' + id);
                 const tabEl = document.getElementById('tab-' + id);
                 if (pageEl) pageEl.classList.add('hidden-page');
                 if (tabEl) tabEl.classList.remove('active-tab');
             });
+            document.getElementById('page-' + pageId).classList.remove('hidden-page');
+            document.getElementById('tab-' + pageId).classList.add('active-tab');
+        }
 
-            const targetPage = document.getElementById('page-' + pageId);
-            const targetTab = document.getElementById('tab-' + pageId);
-            if (targetPage) targetPage.classList.remove('hidden-page');
-            if (targetTab && !targetTab.classList.contains('hidden-page')) {
-                targetTab.classList.add('active-tab');
-            }
-            
-            let statusText = "";
-            if(pageId === 'auth') statusText = "認証待ち";
-            if(pageId === 'profile') statusText = "マイページ編集中";
-            if(pageId === 'upload') statusText = "アップロード待機中";
-            document.getElementById('status-bar-text').innerText = statusText;
+        function updateUIAfterLogin() {
+            document.getElementById('tab-auth').classList.add('hidden-page');
+            document.getElementById('tab-mypage').classList.remove('hidden-page');
+            document.getElementById('tab-upload').classList.remove('hidden-page');
+            document.getElementById('statusbar-text').innerText = 'システムに接続済みです。';
+            switchPage('mypage');
         }
 
         function showMessage(text, type = 'info') {
@@ -377,14 +309,14 @@
             const title = document.getElementById('msg-title');
             
             if (type === 'error') {
-                icon.className = 'ph-fill ph-warning-circle text-4xl text-red-500 drop-shadow-sm';
+                icon.className = 'ph-fill ph-x-circle text-4xl text-red-600 drop-shadow-sm';
                 title.innerText = 'エラー';
             } else if (type === 'success') {
-                icon.className = 'ph-fill ph-check-circle text-4xl text-green-500 drop-shadow-sm';
+                icon.className = 'ph-fill ph-check-circle text-4xl text-green-600 drop-shadow-sm';
                 title.innerText = '成功';
             } else {
-                icon.className = 'ph-fill ph-info text-4xl text-blue-500 drop-shadow-sm';
-                title.innerText = 'メッセージ';
+                icon.className = 'ph-fill ph-info text-4xl text-blue-600 drop-shadow-sm';
+                title.innerText = '情報';
             }
             
             document.getElementById('win-message-box').classList.remove('hidden');
@@ -394,134 +326,159 @@
             document.getElementById('win-message-box').classList.add('hidden');
         }
 
-        function updateUIAfterLogin() {
-            document.getElementById('tab-auth').classList.add('hidden-page');
-            document.getElementById('tab-profile').classList.remove('hidden-page');
-            document.getElementById('tab-upload').classList.remove('hidden-page');
-            document.getElementById('btn-logout').classList.remove('hidden-page');
-            document.getElementById('status-user').innerText = currentUser.email;
-            
-            if (!currentUser.profileSet) {
-                showMessage("ログインしました。\n初回ログインのため、まずはプロフィールを設定してください。", "info");
-                switchPage('profile');
-            } else {
-                switchPage('upload');
+        async function handleAuth(action) {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const errorEl = document.getElementById('auth-error');
+            errorEl.innerText = '';
+
+            if (!email || !password) {
+                errorEl.innerText = '入力されていない項目があります。';
+                return;
+            }
+
+            if (!email.endsWith('@soei.ed.jp')) {
+                errorEl.innerText = '創英のメールアドレス(@soei.ed.jp)のみ許可されています。';
+                return;
+            }
+
+            try {
+                const endpoint = action === 'login' ? '/api/login' : '/api/register';
+                const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.error || '通信エラーが発生しました。');
+
+                authToken = data.token;
+                localStorage.setItem('sbc_auth_token', authToken);
+                
+                if (action === 'register') {
+                    showMessage('アカウントの登録が完了しました。続けてプロフィールを設定してください。', 'success');
+                }
+                
+                loadProfile();
+
+            } catch (err) {
+                errorEl.innerText = err.message;
             }
         }
 
-        function doLogout() {
-            currentUser = null;
-            document.getElementById('tab-auth').classList.remove('hidden-page');
-            document.getElementById('tab-profile').classList.add('hidden-page');
-            document.getElementById('tab-upload').classList.add('hidden-page');
-            document.getElementById('btn-logout').classList.add('hidden-page');
-            document.getElementById('status-user').innerText = "未ログイン";
+        function logout() {
+            localStorage.removeItem('sbc_auth_token');
+            authToken = null;
             
-            document.getElementById('login-form').reset();
-            document.getElementById('register-form').reset();
-            document.getElementById('profile-form').reset();
-            document.getElementById('upload-form').reset();
+            document.getElementById('tab-auth').classList.remove('hidden-page');
+            document.getElementById('tab-mypage').classList.add('hidden-page');
+            document.getElementById('tab-upload').classList.add('hidden-page');
+            document.getElementById('statusbar-text').innerText = '未ログイン状態です';
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
             
             switchPage('auth');
-            showMessage("ログアウトしました。");
         }
 
-        function isValidEmail(email) {
-            return email.endsWith('@soei.ed.jp');
-        }
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/me`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
 
-        
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
+                if (res.status === 401) {
+                    logout();
+                    return;
+                }
 
-            if (!isValidEmail(email)) {
-                showMessage("エラー: @soei.ed.jp のメールアドレスのみ使用可能です。", "error");
-                return;
-            }
+                if (!res.ok) throw new Error('プロフィールの取得に失敗しました。');
 
-            setTimeout(() => {
-                currentUser = { 
-                    email: email, 
-                    token: "dummy_jwt_token",
-                    profileSet: false 
-                };
+                const data = await res.json();
+                
+                document.getElementById('prof-name').value = data.name || '';
+                document.getElementById('prof-year').value = data.entrance_year || new Date().getFullYear();
+                document.getElementById('prof-route').value = data.route || '内進生';
+                document.getElementById('prof-bio').value = data.bio || '';
+
                 updateUIAfterLogin();
-            }, 500);
-        }
 
-        async function handleRegister(e) {
-            e.preventDefault();
-            const email = document.getElementById('reg-email').value;
-            const password = document.getElementById('reg-password').value;
-
-            if (!isValidEmail(email)) {
-                showMessage("エラー: @soei.ed.jp のメールアドレスのみ登録可能です。", "error");
-                return;
+            } catch (err) {
+                showMessage(err.message, 'error');
             }
-
-            setTimeout(() => {
-                showMessage("アカウントを作成しました。\n作成した情報でログインしてください。", "success");
-                document.getElementById('reg-email').value = "";
-                document.getElementById('reg-password').value = "";
-                document.getElementById('login-email').value = email; 
-            }, 500);
         }
 
-        async function handleProfileSave(e) {
+        async function updateProfile(e) {
             e.preventDefault();
-            const btn = document.getElementById('btn-save-profile');
+            const btn = document.getElementById('prof-submit-btn');
             btn.disabled = true;
-            btn.innerText = "保存中...";
+            btn.innerText = '通信中...';
 
-            const profileData = {
+            const payload = {
                 name: document.getElementById('prof-name').value,
-                year: document.getElementById('prof-year').value,
-                type: document.querySelector('input[name="prof-type"]:checked').value,
+                entrance_year: parseInt(document.getElementById('prof-year').value),
+                route: document.getElementById('prof-route').value,
                 bio: document.getElementById('prof-bio').value
             };
 
-           setTimeout(() => {
-                currentUser.profileSet = true;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/me`, {
+                    method: 'PUT',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}` 
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) throw new Error('プロフィールの更新に失敗しました。');
+                showMessage('プロフィールを更新しました。', 'success');
+            } catch (err) {
+                showMessage(err.message, 'error');
+            } finally {
                 btn.disabled = false;
-                btn.innerText = "情報を保存する";
-                showMessage("プロフィールを保存しました。\nこれで音源のアップロードが可能です。", "success");
-                switchPage('upload');
-            }, 800);
+                btn.innerText = '適用(A)';
+            }
         }
 
         async function handleUpload(e) {
             e.preventDefault();
+            const btn = document.getElementById('up-submit-btn');
+            const statusEl = document.getElementById('upload-status');
             
-            if (!currentUser.profileSet) {
-                showMessage("先にマイページでプロフィールを設定してください。", "error");
-                switchPage('profile');
-                return;
-            }
+            btn.disabled = true;
+            statusEl.innerText = 'アップロード中...';
 
-            const fileInput = document.getElementById('up-file');
+            const file = document.getElementById('up-file').files[0];
             const title = document.getElementById('up-title').value;
             const genre = document.getElementById('up-genre').value;
-            
-            if (fileInput.files.length === 0) return;
-
-            const btn = document.getElementById('btn-do-upload');
-            const originalBtnHtml = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = `<div class="loader"></div> アップロード中...`;
 
             const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            formData.append('file', file);
             formData.append('title', title);
             formData.append('genre', genre);
 
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = originalBtnHtml;
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` },
+                    body: formData 
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'アップロードに失敗しました。');
+
+                showMessage('音源のアップロードが完了しました！', 'success');
+                
                 document.getElementById('upload-form').reset();
-                showMessage(`「${title}」のアップロードが完了しました！\n閲覧用ページに反映されます。`, "success");
-            }, 1500);
+
+            } catch (err) {
+                showMessage(err.message, 'error');
+            } finally {
+                btn.disabled = false;
+                statusEl.innerText = '';
+            }
         }
     </script>
 </body>
