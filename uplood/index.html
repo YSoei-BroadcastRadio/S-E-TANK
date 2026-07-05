@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y. SBC S-E-TANK - 管理室</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: #008080;
+            font-family: 'DotGothic16', "MS UI Gothic", "ＭＳ Ｐゴシック", Tahoma, sans-serif;
+            color: #000;
+        }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.08) 50%,
+                rgba(0,0,0,0.08)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .win-window {
+            background-color: #d4d0c8;
+            border-top: 1px solid #dfdfdf;
+            border-left: 1px solid #dfdfdf;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.3);
+            padding: 3px;
+        }
+
+        .win-titlebar {
+            background: linear-gradient(90deg, #0a246a 0%, #a6caf0 100%);
+            color: white;
+            font-weight: bold;
+            padding: 2px 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .win-title-btn {
+            background-color: #d4d0c8;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            width: 16px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #000;
+            cursor: pointer;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+        }
+
+        .win-btn {
+            background-color: #d4d0c8;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            color: #000;
+            cursor: pointer;
+            text-align: center;
+        }
+        .win-btn:active, .win-btn.active-tab {
+            border-top: 1px solid #404040;
+            border-left: 1px solid #404040;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
+            padding-top: 1px;
+            padding-left: 1px;
+        }
+        .win-btn:disabled {
+            color: #808080;
+            text-shadow: 1px 1px 0 #fff;
+            cursor: not-allowed;
+        }
+
+        .win-inset {
+            background-color: #fff;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #808080;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000;
+        }
+
+        .win-divider {
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #fff;
+            margin: 8px 0;
+        }
+
+        .win-input {
+            background-color: #fff;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #808080;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000;
+            padding: 2px 4px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .win-input:focus {
+            outline: none;
+            background-color: #e6f2ff;
+        }
+
+        .hidden-page {
+            display: none !important;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-2 md:p-8 flex justify-center items-start">
+    <div class="scanlines"></div>
+
+    <div class="win-window w-full max-w-2xl flex flex-col mt-4 relative z-10">
+        
+        <div class="win-titlebar">
+            <div class="flex items-center gap-1">
+                <i class="ph-fill ph-gear text-lg text-gray-300"></i>
+                <span>Y. SBC S-E-TANK [投稿・管理用プロンプト]</span>
+            </div>
+            <div class="flex gap-1">
+                <button class="win-title-btn">_</button>
+                <button class="win-title-btn">□</button>
+                <button class="win-title-btn font-bold">×</button>
+            </div>
+        </div>
+
+        <div class="flex gap-2 p-2 pb-0 overflow-x-auto" id="tab-container">
+            <button id="tab-auth" class="win-btn active-tab px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('auth')">システムログイン</button>
+            <button id="tab-profile" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="switchPage('profile')">マイページ</button>
+            <button id="tab-upload" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="switchPage('upload')">音源アップロード</button>
+            <div class="flex-grow"></div>
+            <button id="btn-logout" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap hidden-page" onclick="doLogout()">ログアウト</button>
+        </div>
+
+        <div class="win-inset p-3 m-2 mt-0 flex-grow" style="min-height: 50vh;">
+            
+            <div id="page-auth" class="space-y-4 p-2 text-sm">
+                <div class="flex items-start gap-4 mb-4">
+                    <i class="ph-fill ph-lock-key text-5xl text-gray-500"></i>
+                    <div>
+                        <h2 class="font-bold text-lg mb-2">認証が必要です</h2>
+                        <p>音源を投稿するには、部員用アカウントでログインしてください。</p>
+                        <p class="text-xs text-red-600 mt-1">※ @soei.ed.jp のメールアドレスのみ登録・ログイン可能です。</p>
+                    </div>
+                </div>
+
+                <div class="win-divider"></div>
+
+                <div class="flex flex-col md:flex-row gap-6">
+                    <div class="flex-1 bg-[#ece9d8] p-4 border border-gray-400">
+                        <h3 class="font-bold mb-3 border-b border-gray-400 pb-1">既存アカウントでログイン</h3>
+                        <form id="login-form" class="space-y-3" onsubmit="handleLogin(event)">
+                            <div>
+                                <label class="block mb-1">メールアドレス:</label>
+                                <input type="email" id="login-email" class="win-input w-full" placeholder="xxxx@soei.ed.jp" required>
+                            </div>
+                            <div>
+                                <label class="block mb-1">パスワード:</label>
+                                <input type="password" id="login-password" class="win-input w-full" required>
+                            </div>
+                            <div class="pt-2 text-right">
+                                <button type="submit" class="win-btn px-6 py-1">ログイン</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="flex-1 bg-[#ece9d8] p-4 border border-gray-400">
+                        <h3 class="font-bold mb-3 border-b border-gray-400 pb-1">初めての方 (新規登録)</h3>
+                        <form id="register-form" class="space-y-3" onsubmit="handleRegister(event)">
+                            <div>
+                                <label class="block mb-1">学校用メールアドレス:</label>
+                                <input type="email" id="reg-email" class="win-input w-full" placeholder="xxxx@soei.ed.jp" required>
+                            </div>
+                            <div>
+                                <label class="block mb-1">パスワード設定:</label>
+                                <input type="password" id="reg-password" class="win-input w-full" required>
+                            </div>
+                            <div class="pt-2 text-right">
+                                <button type="submit" class="win-btn px-6 py-1">新規登録</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-profile" class="hidden-page space-y-4 p-2 text-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="ph-fill ph-identification-card text-2xl text-blue-700"></i>
+                    <h2 class="font-bold text-lg">プロフィールの設定</h2>
+                </div>
+                <p class="text-xs mb-2">ここで設定した情報は、閲覧用ページの「作成者一覧」に表示されます。<br>初回登録時は必ず入力してください。</p>
+
+                <div class="bg-[#ece9d8] p-4 border border-gray-400">
+                    <form id="profile-form" class="space-y-4" onsubmit="handleProfileSave(event)">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-bold mb-1">クリエイター名 (必須):</label>
+                                <input type="text" id="prof-name" class="win-input w-full" required placeholder="例: 豆腐さん">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">入学年度 (西暦):</label>
+                                <input type="number" id="prof-year" class="win-input w-full" required min="2000" max="2050" placeholder="例: 2024">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold mb-1">区分:</label>
+                            <div class="flex gap-4 items-center">
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="radio" name="prof-type" value="内進生" checked> 内進生
+                                </label>
+                                <label class="flex items-center gap-1 cursor-pointer">
+                                    <input type="radio" name="prof-type" value="高入生"> 高入生
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold mb-1">軽い自己紹介:</label>
+                            <textarea id="prof-bio" class="win-input w-full h-24 resize-none" placeholder="得意なジャンルや、好きなものなどを書いてください。"></textarea>
+                        </div>
+
+                        <div class="pt-2 text-right win-divider border-t border-[#808080] border-b-0 border-transparent">
+                            <button type="submit" class="win-btn px-8 py-2 font-bold" id="btn-save-profile">情報を保存する</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="page-upload" class="hidden-page space-y-4 p-2 text-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <i class="ph-fill ph-upload-simple text-2xl text-green-700"></i>
+                    <h2 class="font-bold text-lg">音源データのアップロード</h2>
+                </div>
+                
+                <div class="bg-[#ffffe1] border border-black p-2 text-xs shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
+                    <i class="ph-fill ph-warning-circle text-yellow-600"></i>
+                    著作権フリーの素材や、自身で作成したオリジナルの音源のみアップロードしてください。
+                </div>
+
+                <div class="bg-[#ece9d8] p-4 border border-gray-400">
+                    <form id="upload-form" class="space-y-4" onsubmit="handleUpload(event)">
+                        
+                        <div>
+                            <label class="block font-bold mb-1">音源ファイル (.mp3, .wav等):</label>
+                            <div class="flex items-center gap-2">
+                                <input type="file" id="up-file" accept="audio/*" class="win-input w-full p-1 bg-white" required>
+                            </div>
+                            <p class="text-[10px] text-gray-600 mt-1">※アップロードされたファイルは自動的にCloudflare R2に保存され、配信URLが発行されます。</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-bold mb-1">曲名 / タイトル:</label>
+                                <input type="text" id="up-title" class="win-input w-full" required placeholder="例: とぼけ.mp3">
+                            </div>
+                            <div>
+                                <label class="block font-bold mb-1">ジャンル・用途:</label>
+                                <select id="up-genre" class="win-input w-full h-[26px]">
+                                    <option value="SE / 感情表現">SE / 感情表現</option>
+                                    <option value="SE / シーン効果音">SE / シーン効果音</option>
+                                    <option value="SE / 人物音">SE / 人物音</option>
+                                    <option value="SE / 環境音">SE / 環境音</option>
+                                    <option value="BGM / 明るい">BGM / 明るい</option>
+                                    <option value="BGM / 暗い・シリアス">BGM / 暗い・シリアス</option>
+                                    <option value="BGM / 日常">BGM / 日常</option>
+                                    <option value="その他">その他</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 text-right win-divider border-t border-[#808080] border-b-0 border-transparent">
+                            <button type="submit" class="win-btn px-8 py-2 font-bold flex items-center justify-center gap-2 ml-auto" id="btn-do-upload">
+                                <i class="ph-bold ph-upload"></i> アップロード開始
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-1 border-t border-[#808080] pt-1 px-2 text-xs flex justify-between bg-[#d4d0c8]">
+            <span id="status-bar-text">認証待ち</span>
+            <span class="win-inset px-2 py-px shadow-none" id="status-user">未ログイン</span>
+        </div>
+    </div>
+    
+    <div id="win-message-box" class="fixed inset-0 bg-transparent flex items-center justify-center z-[100] hidden">
+        <div class="win-window w-80 shadow-[2px_2px_10px_rgba(0,0,0,0.5)] relative bg-[#d4d0c8]">
+            <div class="win-titlebar">
+                <span id="msg-title">メッセージ</span>
+                <button class="win-title-btn font-bold" onclick="closeMessage()">×</button>
+            </div>
+            <div class="p-4 flex flex-col items-center text-sm">
+                <div class="flex items-center gap-4 mb-6 w-full">
+                    <i id="msg-icon" class="ph-fill ph-info text-4xl text-blue-500 drop-shadow-sm"></i>
+                    <p id="win-message-text" class="flex-grow font-bold"></p>
+                </div>
+                <button class="win-btn px-8 py-1" onclick="closeMessage()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'https://s-e-tank-api.ataro-999-qqq.workers.dev'; 
+        
+        let currentUser = null;
+
+        function switchPage(pageId) {
+            const pages = ['auth', 'profile', 'upload'];
+            
+            pages.forEach(id => {
+                const pageEl = document.getElementById('page-' + id);
+                const tabEl = document.getElementById('tab-' + id);
+                if (pageEl) pageEl.classList.add('hidden-page');
+                if (tabEl) tabEl.classList.remove('active-tab');
+            });
+
+            const targetPage = document.getElementById('page-' + pageId);
+            const targetTab = document.getElementById('tab-' + pageId);
+            if (targetPage) targetPage.classList.remove('hidden-page');
+            if (targetTab && !targetTab.classList.contains('hidden-page')) {
+                targetTab.classList.add('active-tab');
+            }
+            
+            let statusText = "";
+            if(pageId === 'auth') statusText = "認証待ち";
+            if(pageId === 'profile') statusText = "マイページ編集中";
+            if(pageId === 'upload') statusText = "アップロード待機中";
+            document.getElementById('status-bar-text').innerText = statusText;
+        }
+
+        function showMessage(text, type = 'info') {
+            document.getElementById('win-message-text').innerText = text;
+            const icon = document.getElementById('msg-icon');
+            const title = document.getElementById('msg-title');
+            
+            if (type === 'error') {
+                icon.className = 'ph-fill ph-warning-circle text-4xl text-red-500 drop-shadow-sm';
+                title.innerText = 'エラー';
+            } else if (type === 'success') {
+                icon.className = 'ph-fill ph-check-circle text-4xl text-green-500 drop-shadow-sm';
+                title.innerText = '成功';
+            } else {
+                icon.className = 'ph-fill ph-info text-4xl text-blue-500 drop-shadow-sm';
+                title.innerText = 'メッセージ';
+            }
+            
+            document.getElementById('win-message-box').classList.remove('hidden');
+        }
+
+        function closeMessage() {
+            document.getElementById('win-message-box').classList.add('hidden');
+        }
+
+        function updateUIAfterLogin() {
+            document.getElementById('tab-auth').classList.add('hidden-page');
+            document.getElementById('tab-profile').classList.remove('hidden-page');
+            document.getElementById('tab-upload').classList.remove('hidden-page');
+            document.getElementById('btn-logout').classList.remove('hidden-page');
+            document.getElementById('status-user').innerText = currentUser.email;
+            
+            if (!currentUser.profileSet) {
+                showMessage("ログインしました。\n初回ログインのため、まずはプロフィールを設定してください。", "info");
+                switchPage('profile');
+            } else {
+                switchPage('upload');
+            }
+        }
+
+        function doLogout() {
+            currentUser = null;
+            document.getElementById('tab-auth').classList.remove('hidden-page');
+            document.getElementById('tab-profile').classList.add('hidden-page');
+            document.getElementById('tab-upload').classList.add('hidden-page');
+            document.getElementById('btn-logout').classList.add('hidden-page');
+            document.getElementById('status-user').innerText = "未ログイン";
+            
+            document.getElementById('login-form').reset();
+            document.getElementById('register-form').reset();
+            document.getElementById('profile-form').reset();
+            document.getElementById('upload-form').reset();
+            
+            switchPage('auth');
+            showMessage("ログアウトしました。");
+        }
+
+        function isValidEmail(email) {
+            return email.endsWith('@soei.ed.jp');
+        }
+
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            if (!isValidEmail(email)) {
+                showMessage("エラー: @soei.ed.jp のメールアドレスのみ使用可能です。", "error");
+                return;
+            }
+
+            setTimeout(() => {
+                currentUser = { 
+                    email: email, 
+                    token: "dummy_jwt_token",
+                    profileSet: false 
+                };
+                updateUIAfterLogin();
+            }, 500);
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            if (!isValidEmail(email)) {
+                showMessage("エラー: @soei.ed.jp のメールアドレスのみ登録可能です。", "error");
+                return;
+            }
+
+            setTimeout(() => {
+                showMessage("アカウントを作成しました。\n作成した情報でログインしてください。", "success");
+                document.getElementById('reg-email').value = "";
+                document.getElementById('reg-password').value = "";
+                document.getElementById('login-email').value = email; 
+            }, 500);
+        }
+
+        async function handleProfileSave(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-profile');
+            btn.disabled = true;
+            btn.innerText = "保存中...";
+
+            const profileData = {
+                name: document.getElementById('prof-name').value,
+                year: document.getElementById('prof-year').value,
+                type: document.querySelector('input[name="prof-type"]:checked').value,
+                bio: document.getElementById('prof-bio').value
+            };
+
+           setTimeout(() => {
+                currentUser.profileSet = true;
+                btn.disabled = false;
+                btn.innerText = "情報を保存する";
+                showMessage("プロフィールを保存しました。\nこれで音源のアップロードが可能です。", "success");
+                switchPage('upload');
+            }, 800);
+        }
+
+        async function handleUpload(e) {
+            e.preventDefault();
+            
+            if (!currentUser.profileSet) {
+                showMessage("先にマイページでプロフィールを設定してください。", "error");
+                switchPage('profile');
+                return;
+            }
+
+            const fileInput = document.getElementById('up-file');
+            const title = document.getElementById('up-title').value;
+            const genre = document.getElementById('up-genre').value;
+            
+            if (fileInput.files.length === 0) return;
+
+            const btn = document.getElementById('btn-do-upload');
+            const originalBtnHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = `<div class="loader"></div> アップロード中...`;
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('title', title);
+            formData.append('genre', genre);
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalBtnHtml;
+                document.getElementById('upload-form').reset();
+                showMessage(`「${title}」のアップロードが完了しました！\n閲覧用ページに反映されます。`, "success");
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
