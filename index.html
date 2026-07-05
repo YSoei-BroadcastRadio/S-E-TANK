@@ -15,6 +15,25 @@
             font-family: 'DotGothic16', "MS UI Gothic", "ＭＳ Ｐゴシック", Tahoma, sans-serif;
             color: #000;
         }
+
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.08) 50%,
+                rgba(0,0,0,0.08)
+            );
+            background-size: 100% 4px;
+            pointer-events: none; 
+            z-index: 9999;
+        }
+
         .win-window {
             background-color: #d4d0c8;
             border-top: 1px solid #dfdfdf;
@@ -98,69 +117,28 @@
             margin: 8px 0;
         }
 
-        input[type=range].win-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-            margin: 8px 0;
-        }
-        input[type=range].win-slider:focus {
-            outline: none;
-        }
-        input[type=range].win-slider::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            background: #fff;
-            border-top: 1px solid #808080;
-            border-left: 1px solid #808080;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            box-shadow: inset 1px 1px 0 #000;
-        }
-        input[type=range].win-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 18px;
-            width: 11px;
-            background: #d4d0c8;
-            margin-top: -7px;
-            border-top: 1px solid #fff;
-            border-left: 1px solid #fff;
-            border-right: 1px solid #404040;
-            border-bottom: 1px solid #404040;
-            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
-            cursor: pointer;
-        }
-        input[type=range].win-slider::-moz-range-track {
-            width: 100%;
-            height: 6px;
-            background: #fff;
-            border-top: 1px solid #808080;
-            border-left: 1px solid #808080;
-            border-right: 1px solid #fff;
-            border-bottom: 1px solid #fff;
-            box-shadow: inset 1px 1px 0 #000;
-        }
-        input[type=range].win-slider::-moz-range-thumb {
-            height: 18px;
-            width: 11px;
-            background: #d4d0c8;
-            border-top: 1px solid #fff;
-            border-left: 1px solid #fff;
-            border-right: 1px solid #404040;
-            border-bottom: 1px solid #404040;
-            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
-            border-radius: 0;
-            cursor: pointer;
-        }
-
         .hidden-page {
             display: none !important;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body class="min-h-screen p-2 md:p-8 flex justify-center items-start">
+    <div class="scanlines"></div>
 
-    <div class="win-window w-full max-w-4xl flex flex-col mt-4">
+    <div class="win-window w-full max-w-4xl flex flex-col mt-4 relative z-10">
         
         <div class="win-titlebar">
             <div class="flex items-center gap-1">
@@ -176,8 +154,8 @@
 
         <div class="flex gap-2 p-2 pb-0 overflow-x-auto">
             <button id="tab-home" class="win-btn active-tab px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('home')">メイン</button>
-            <button id="tab-an" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('an')">音源: A. N.</button>
-            <button id="tab-tofu" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('tofu')">音源: 豆腐さん</button>
+            <button id="tab-authors" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('authors')">作成者一覧</button>
+            <button id="tab-tracks" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('tracks')">全ての音源</button>
             <button id="tab-license" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('license')">使用条件・規約</button>
         </div>
 
@@ -189,140 +167,55 @@
                     <div>
                         <h2 class="font-bold text-lg mb-2">Y. SBC S-E-TANK へようこそ！</h2>
                         <p class="mb-2">当サイトでは、横浜創英中学/高等学校 放送部の生徒向けのフリー効果音/BGM素材を配布しています。</p>
-                        <p>上のタブから各作者の音源ページに移動し、試聴・ダウンロードを行ってください。</p>
+                        <p>上のタブから作成者ごと、または全体から音源を探し、試聴・ダウンロードを行ってください。</p>
                     </div>
                 </div>
 
-                <div class="bg-[#ece9d8] p-3 border border-gray-400">
-                    <h3 class="font-bold border-b border-gray-400 pb-1 mb-2">更新履歴</h3>
-                    <ul class="list-none space-y-2 text-xs">
-                        <li><span class="font-bold mr-2">2026/07/06</span>サイトのデザインを煮詰めました。</li>
-                        <li><span class="font-bold mr-2">2026/07/05</span>A.N.の社畜 と 豆腐さん のページが開設されました。</li>
-                        <li><span class="font-bold mr-2">2026/07/04</span>本ページが公開されました。</li>
+                <div class="bg-[#ece9d8] p-3 border border-gray-400 h-48 overflow-y-auto win-inset">
+                    <h3 class="font-bold border-b border-gray-400 pb-1 mb-2">最近の更新履歴</h3>
+                    <div id="updates-loading" class="flex items-center gap-2 text-gray-600"><div class="loader"></div> 読み込み中...</div>
+                    <ul id="updates-list" class="list-none space-y-2 text-xs">
                     </ul>
                 </div>
             </div>
-            
-            <div id="page-an" class="hidden-page space-y-4">
-                
-                <div class="bg-[#ffffe1] border border-black p-3 text-sm shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
-                    <div class="flex items-start gap-2">
-                        <i class="ph-fill ph-user text-blue-600 text-lg"></i>
-                        <div>
-                            <p class="font-bold mb-1">作者: A.N.の社畜</p>
-                            <p>2022年度入部の内進生・本サイトの設立者です！ 環境音や作曲など、音響全般なんでもやります！</p>
-                        </div>
-                    </div>
+
+            <div id="page-authors" class="hidden-page space-y-4 p-2">
+                <div class="flex items-center gap-2 mb-2 pb-2 win-divider">
+                    <i class="ph-fill ph-users text-xl"></i>
+                    <h2 class="font-bold">作成者から探す</h2>
                 </div>
-
-                <div class="flex flex-col md:flex-row gap-2 justify-between items-center mb-4 pb-2 win-divider">
-                    <div class="flex items-center gap-2 w-full md:w-auto">
-                        <span class="text-sm">検索(S):</span>
-                        <input type="text" class="search-input win-inset px-2 py-1 text-sm w-full md:w-64 focus:outline-none focus:bg-blue-50" placeholder="曲名、ジャンル...">
-                    </div>
-                </div>
-
-                <div class="space-y-3 track-list">
-                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
-                        <div class="flex items-center gap-3 w-full md:w-1/3">
-                            <i class="ph-fill ph-file-audio text-3xl text-blue-600"></i>
-                            <div>
-                                <h3 class="font-bold text-sm track-title">とぼけ.mp3</h3>
-                                <p class="text-xs text-gray-600 track-artist">SE / 感情表現</p>
-                            </div>
-                        </div>
-                        <div class="w-full md:flex-1 mt-2 md:mt-0 flex flex-col md:flex-row justify-end items-center gap-3">
-                            <a href="https://drive.google.com/file/d/1QbvZO-FIt4Jo7s0dzxF2Xhx-GByUPmQK/view" target="_blank" rel="noopener noreferrer" class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-play"></i> Google Driveで試聴
-                            </a>
-                            <a href="https://docs.google.com/uc?export=download&id=1QbvZO-FIt4Jo7s0dzxF2Xhx-GByUPmQK" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-download-simple"></i> 保存(S)
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
-                        <div class="flex items-center gap-3 w-full md:w-1/3">
-                            <i class="ph-fill ph-file-audio text-3xl text-purple-600"></i>
-                            <div>
-                                <h3 class="font-bold text-sm track-title">ガーン.mp3</h3>
-                                <p class="text-xs text-gray-600 track-artist">SE / 感情表現</p>
-                            </div>
-                        </div>
-                        <div class="w-full md:flex-1 mt-2 md:mt-0 flex flex-col md:flex-row justify-end items-center gap-3">
-                            <a href="https://drive.google.com/file/d/1jms9PekID8E2an2d6ke4dcPCPzb-Yan0/view" target="_blank" rel="noopener noreferrer" class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-play"></i> Google Driveで試聴
-                            </a>
-                            <a href="https://docs.google.com/uc?export=download&id=1jms9PekID8E2an2d6ke4dcPCPzb-Yan0" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-download-simple"></i> 保存(S)
-                            </a>
-                        </div>
-                    </div>
+                <div id="authors-loading" class="flex items-center gap-2 text-gray-600"><div class="loader"></div> データ通信中...</div>
+                <div id="authors-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 </div>
             </div>
-
-            <div id="page-tofu" class="hidden-page space-y-4">
+            
+            <div id="page-tracks" class="hidden-page space-y-4">
                 
-                <div class="bg-[#ffffe1] border border-black p-3 text-sm shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
-                    <div class="flex items-start gap-2">
-                        <i class="ph-fill ph-user text-green-600 text-lg"></i>
-                        <div>
-                            <p class="font-bold mb-1">作者: 豆腐さん</p>
-                            <p>2024年度入部の内進生です。 番組制作って…いいよね……。</p>
-                        </div>
-                    </div>
+                <div id="author-filter-alert" class="hidden bg-[#ffffe1] border border-black p-2 text-sm shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-2 flex justify-between items-center">
+                    <span id="author-filter-text" class="font-bold"></span>
+                    <button class="win-btn px-2 py-0 text-xs" onclick="clearAuthorFilter()">絞り込み解除</button>
                 </div>
 
                 <div class="flex flex-col md:flex-row gap-2 justify-between items-center mb-4 pb-2 win-divider">
                     <div class="flex items-center gap-2 w-full md:w-auto">
                         <span class="text-sm">検索(S):</span>
-                        <input type="text" class="search-input win-inset px-2 py-1 text-sm w-full md:w-64 focus:outline-none focus:bg-green-50" placeholder="曲名、ジャンル...">
+                        <input type="text" id="track-search-input" class="win-inset px-2 py-1 text-sm w-full md:w-64 focus:outline-none focus:bg-blue-50" placeholder="曲名、ジャンル、作成者...">
+                    </div>
+                    <div class="text-xs text-gray-600" id="track-count-display">
+                        全 0 件
                     </div>
                 </div>
 
-                <div class="space-y-3 track-list">
-                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
-                        <div class="flex items-center gap-3 w-full md:w-1/3">
-                            <i class="ph-fill ph-file-audio text-3xl text-green-600"></i>
-                            <div>
-                                <h3 class="font-bold text-sm track-title">ノイズ.mp3</h3>
-                                <p class="text-xs text-gray-600 track-artist">SE / シーン効果音</p>
-                            </div>
-                        </div>
-                        <div class="w-full md:flex-1 mt-2 md:mt-0 flex flex-col md:flex-row justify-end items-center gap-3">
-                            <a href="https://drive.google.com/file/d/1gOvjbSJUZEaOoJVHao8pft3Zp9W__Tv8/view" target="_blank" rel="noopener noreferrer" class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-play"></i> Google Driveで試聴
-                            </a>
-                            <a href="https://docs.google.com/uc?export=download&id=1gOvjbSJUZEaOoJVHao8pft3Zp9W__Tv8" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-download-simple"></i> 保存(S)
-                            </a>
-                        </div>
-                    </div>
-
-                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
-                        <div class="flex items-center gap-3 w-full md:w-1/3">
-                            <i class="ph-fill ph-file-audio text-3xl text-emerald-700"></i>
-                            <div>
-                                <h3 class="font-bold text-sm track-title">ぱっちん.mp3</h3>
-                                <p class="text-xs text-gray-600 track-artist">SE / 人物音</p>
-                            </div>
-                        </div>
-                        <div class="w-full md:flex-1 mt-2 md:mt-0 flex flex-col md:flex-row justify-end items-center gap-3">
-                            <a href="https://drive.google.com/file/d/1zYEeSTRt14WQhemcoeV0JJJOVcNCqZWa/view" target="_blank" rel="noopener noreferrer" class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-play"></i> Google Driveで試聴
-                            </a>
-                            <a href="https://docs.google.com/uc?export=download&id=1zYEeSTRt14WQhemcoeV0JJJOVcNCqZWa" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
-                                <i class="ph-bold ph-download-simple"></i> 保存(S)
-                            </a>
-                        </div>
-                    </div>
+                <div id="tracks-loading" class="flex items-center gap-2 text-gray-600 p-2"><div class="loader"></div> 音源データを取得中...</div>
+                
+                <div id="tracks-list" class="space-y-3 h-[45vh] overflow-y-auto pr-1">
                 </div>
             </div>
 
             <div id="page-license" class="hidden-page space-y-4 p-2 text-sm">
                 <h2 class="font-bold border-b border-gray-400 pb-1 text-base">音楽素材の利用規約</h2>
                 
-                <div class="bg-[#ece9d8] p-4 border border-gray-400 h-64 overflow-y-auto win-inset">
+                <div class="bg-[#ece9d8] p-4 border border-gray-400 h-[45vh] overflow-y-auto win-inset">
                     <p class="mb-3">本サイト（Y. SBC S-E-TANK）で配布している音源ファイルは、以下の条件の範囲内で自由にご利用いただけます。</p>
                     
                     <h3 class="font-bold mt-4 mb-1">【許可されていること】</h3>
@@ -331,52 +224,33 @@
                     <li>YouTube等の動画配信、情報発信、ポッドキャスト、ラジオ放送などでの使用を許可。</li>
                     <li>音源のカット、フェードイン・フェードアウト、ループ処理、エフェクトの追加などの加工も可。</li>
                     <li>学校行事、部活動紹介、作品制作、大会提出作品などでの利用が可能。</li>
-</ul>
+                    </ul>
 
-<h3 class="font-bold mt-4 mb-1">【禁止されていること】</h3>
-<ul class="list-disc pl-5 mb-3 space-y-1">
-    <li>横浜創英中学/高等学校 放送部のメンバー以外の音源使用。</li>
-    <li>音源ファイル自体の二次配布、販売（加工後も不可）。</li>
-    <li>「作業用BGM」など、音楽の聴取のみを主目的とした動画やコンテンツの作成・公開。</li>
-    <li>違法サイト、公序良俗に反するコンテンツでの使用。</li>
-    <li>著作権を偽る行為（「自分で作曲した」と発言するなど）。</li>
-    <li>音源をAI学習用データとして利用、またはAIモデルの学習用データセットへ組み込むこと。</li>
-    <li>音源をYouTube Content IDその他の著作権管理・自動検出サービスへ登録すること。</li>
-    <li>音源を素材集や配布パック等に収録し、第三者が再利用できる形で公開・配布すること。</li>
-    <li>音源をリミックス・加工したものを素材として再配布・販売すること。</li>
-</ul>
+                    <h3 class="font-bold mt-4 mb-1">【禁止されていること】</h3>
+                    <ul class="list-disc pl-5 mb-3 space-y-1">
+                        <li>横浜創英中学/高等学校 放送部のメンバー以外の音源使用。</li>
+                        <li>音源ファイル自体の二次配布、販売（加工後も不可）。</li>
+                        <li>「作業用BGM」など、音楽の聴取のみを主目的とした動画やコンテンツの作成・公開。</li>
+                        <li>違法サイト、公序良俗に反するコンテンツでの使用。</li>
+                        <li>著作権を偽る行為（「自分で作曲した」と発言するなど）。</li>
+                        <li>音源をAI学習用データとして利用、またはAIモデルの学習用データセットへ組み込むこと。</li>
+                        <li>音源をYouTube Content IDその他の著作権管理・自動検出サービスへ登録すること。</li>
+                        <li>音源を素材集や配布パック等に収録し、第三者が再利用できる形で公開・配布すること。</li>
+                        <li>音源をリミックス・加工したものを素材として再配布・販売すること。</li>
+                    </ul>
 
-<h3 class="font-bold mt-4 mb-1">【著作権について】</h3>
-<p>音源ファイルの著作権は、私立横浜創英中学・高等学校放送部に帰属します。<br>
-本利用規約は音源の利用を許諾するものであり、著作権を譲渡するものではありません。</p>
+                    <h3 class="font-bold mt-4 mb-1">【著作権について】</h3>
+                    <p>音源ファイルの著作権は、各制作者および私立横浜創英中学・高等学校放送部に帰属します。<br>
+                    本利用規約は音源の利用を許諾するものであり、著作権を譲渡するものではありません。</p>
 
-<h3 class="font-bold mt-4 mb-1">【利用資格について】</h3>
-<p>本音源は、横浜創英中学/高等学校 放送部に所属しているメンバーのみ利用できます。<br>
-卒業・退部後に新たな作品へ利用する場合は、別途許可を得てください。<br>
-なお、在籍中に制作・公開した作品については、公開を継続できます。</p>
+                    <h3 class="font-bold mt-4 mb-1">【利用資格について】</h3>
+                    <p>本音源は、横浜創英中学/高等学校 放送部に所属しているメンバーのみ利用できます。<br>
+                    卒業・退部後に新たな作品へ利用する場合は、別途許可を得てください。<br>
+                    なお、在籍中に制作・公開した作品については、公開を継続できます。</p>
 
-<h3 class="font-bold mt-4 mb-1">【クレジット表記について】</h3>
-<p>クレジット表記は任意ですが、記載していただけると非常に助かります。<br>
-例： <code>BGM: Y. SBC S-E-TANK (https://example.com)</code></p>
-
-<h3 class="font-bold mt-4 mb-1">【免責事項】</h3>
-<p>音源の利用によって発生した損害、トラブル等について、Y. SBC S-E-TANKは一切の責任を負いません。<br>
-また、音源は予告なく変更・削除・配布終了する場合があります。</p>
-
-
-                <h3 class="font-bold mt-4 mb-1">【利用規約の変更】</h3>
-                <p>本利用規約は、必要に応じて予告なく変更する場合があります。<br>
-                音源の利用時点で掲載されている最新の利用規約が適用されます。</p>
-
-
-                <h3 class="font-bold mt-4 mb-1">【規約違反について】</h3>
-                <p>本利用規約に違反した場合は、利用許諾を取り消す場合があります。<br>
-                必要に応じて、音源を使用したコンテンツの公開停止・削除をお願いすることがあります。</p>
-
-
-                <h3 class="font-bold mt-4 mb-1">【お問い合わせ】</h3>
-                <p>本利用規約に関するご質問や、規約に記載のない利用をご希望の場合は、Y. SBC S-E-TANK管理者までお問い合わせください。</p>
-                    
+                    <h3 class="font-bold mt-4 mb-1">【クレジット表記について】</h3>
+                    <p>クレジット表記は任意ですが、記載していただけると非常に助かります。<br>
+                    例： <code>BGM: Y. SBC S-E-TANK (https://example.com)</code></p>
                 </div>
 
                 <div class="flex justify-end gap-2 mt-4">
@@ -387,19 +261,20 @@
         </div>
 
         <div class="mt-1 border-t border-[#808080] pt-1 px-2 text-xs flex justify-between bg-[#d4d0c8]">
-            <span>準備完了</span>
-            <span class="win-inset px-2 py-px shadow-none">3 オブジェクト</span>
+            <span id="status-bar-text">準備完了</span>
+            <span class="win-inset px-2 py-px shadow-none">System Online</span>
         </div>
     </div>
+    
     <div id="win-message-box" class="fixed inset-0 bg-transparent flex items-center justify-center z-[100] hidden">
         <div class="win-window w-80 shadow-[2px_2px_10px_rgba(0,0,0,0.5)] relative bg-[#d4d0c8]">
             <div class="win-titlebar">
-                <span>警告</span>
+                <span>メッセージ</span>
                 <button class="win-title-btn font-bold" onclick="closeMessage()">×</button>
             </div>
             <div class="p-4 flex flex-col items-center text-sm">
                 <div class="flex items-center gap-4 mb-6 w-full">
-                    <i class="ph-fill ph-warning-circle text-4xl text-yellow-500 drop-shadow-sm"></i>
+                    <i class="ph-fill ph-info text-4xl text-blue-500 drop-shadow-sm"></i>
                     <p id="win-message-text" class="flex-grow font-bold"></p>
                 </div>
                 <button class="win-btn px-8 py-1" onclick="closeMessage()">OK</button>
@@ -408,8 +283,13 @@
     </div>
 
     <script>
+        const API_BASE_URL = 'https://s-e-tank-api.ataro-999-qqq.workers.dev'; 
+        
+        let currentTracks = [];
+        let currentFilterAuthorId = null;
+
         function switchPage(pageId) {
-            const pages = ['home', 'an', 'tofu', 'license'];
+            const pages = ['home', 'authors', 'tracks', 'license'];
             
             pages.forEach(id => {
                 const pageEl = document.getElementById('page-' + id);
@@ -422,42 +302,13 @@
             const targetTab = document.getElementById('tab-' + pageId);
             if (targetPage) targetPage.classList.remove('hidden-page');
             if (targetTab) targetTab.classList.add('active-tab');
+            
+            document.getElementById('status-bar-text').innerText = `${targetTab.innerText} を表示中`;
+
+            if (pageId === 'home' && document.getElementById('updates-list').children.length === 0) loadUpdates();
+            if (pageId === 'authors' && document.getElementById('authors-grid').children.length === 0) loadAuthors();
+            if (pageId === 'tracks' && currentTracks.length === 0) loadTracks();
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInputs = document.querySelectorAll('.search-input');
-            
-            searchInputs.forEach(input => {
-                input.addEventListener('input', (e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    const page = e.target.closest('div[id^="page-"]');
-                    const pageTracks = page.querySelectorAll('.track-item');
-
-                    pageTracks.forEach(item => {
-                        const title = item.querySelector('.track-title').textContent.toLowerCase();
-                        const artist = item.querySelector('.track-artist').textContent.toLowerCase();
-
-                        if (title.includes(searchTerm) || artist.includes(searchTerm)) {
-                            item.style.display = 'flex';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                });
-            });
-            
-            document.getElementById('btn-minimize').addEventListener('click', () => {
-                showMessage('最小化しようだなんて思うんじゃぁない！');
-            });
-            
-            document.getElementById('btn-maximize').addEventListener('click', () => {
-                showMessage('もう十分ウィンドウは大きいだろう？目は節穴かい？');
-            });
-            
-            document.getElementById('btn-close').addEventListener('click', () => {
-                showMessage('これで閉じてもタブは閉じられないぜ！頭冷やせ！');
-            });
-        });
 
         function showMessage(text) {
             document.getElementById('win-message-text').innerText = text;
@@ -467,6 +318,184 @@
         function closeMessage() {
             document.getElementById('win-message-box').classList.add('hidden');
         }
+
+        async function loadUpdates() {
+            const listEl = document.getElementById('updates-list');
+            const loader = document.getElementById('updates-loading');
+            
+            if (!API_BASE_URL) {
+                loader.classList.add('hidden');
+                listEl.innerHTML = `<li><span class="text-red-600">※APIが設定されていません。システム管理者にお問い合わせください。</span></li>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/updates`);
+                if (!res.ok) throw new Error('Network response was not ok');
+                const updates = await res.json();
+                
+                loader.classList.add('hidden');
+                listEl.innerHTML = updates.map(update => `
+                    <li>
+                        <span class="font-bold mr-2">${update.date}</span>
+                        ${update.authorName} が 「${update.trackName}」 をアップロードしました。
+                    </li>
+                `).join('');
+                
+                if (updates.length === 0) {
+                    listEl.innerHTML = `<li>まだ履歴がありません。</li>`;
+                }
+            } catch (error) {
+                loader.classList.add('hidden');
+                listEl.innerHTML = `<li><span class="text-red-600">履歴の取得に失敗しました。</span></li>`;
+                console.error("Fetch updates error:", error);
+            }
+        }
+
+        async function loadAuthors() {
+            const gridEl = document.getElementById('authors-grid');
+            const loader = document.getElementById('authors-loading');
+            
+            if (!API_BASE_URL) {
+                loader.classList.add('hidden');
+                gridEl.innerHTML = `<div class="text-red-600 p-2">※APIが設定されていません。</div>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/authors`);
+                if (!res.ok) throw new Error('Network response was not ok');
+                const authors = await res.json();
+                
+                loader.classList.add('hidden');
+                gridEl.innerHTML = authors.map(author => `
+                    <div class="bg-[#ece9d8] border border-gray-400 p-3 shadow-sm hover:bg-[#fff] cursor-pointer transition-colors" onclick="filterTracksByAuthor('${author.id}', '${author.name}')">
+                        <div class="flex items-start gap-2">
+                            <i class="ph-fill ph-user-circle text-blue-700 text-3xl"></i>
+                            <div>
+                                <p class="font-bold text-sm mb-1">${author.name}</p>
+                                <p class="text-xs text-gray-700 mb-1">${author.admissionYear}年度入部 / ${author.type}</p>
+                                <p class="text-xs break-words">${author.bio}</p>
+                                <button class="mt-2 win-btn px-2 py-0 text-xs">この作者の音源を見る</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                loader.classList.add('hidden');
+                gridEl.innerHTML = `<div class="text-red-600 p-2">データの取得に失敗しました。</div>`;
+                console.error("Fetch authors error:", error);
+            }
+        }
+
+        async function loadTracks() {
+            const listEl = document.getElementById('tracks-list');
+            const loader = document.getElementById('tracks-loading');
+            
+            if (!API_BASE_URL) {
+                loader.classList.add('hidden');
+                listEl.innerHTML = `<div class="text-red-600 p-2">※APIが設定されていません。</div>`;
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE_URL}/api/tracks`);
+                if (!res.ok) throw new Error('Network response was not ok');
+                currentTracks = await res.json();
+                
+                loader.classList.add('hidden');
+                renderTracks();
+            } catch (error) {
+                loader.classList.add('hidden');
+                listEl.innerHTML = `<div class="text-red-600 p-2">音源の取得に失敗しました。</div>`;
+                console.error("Fetch tracks error:", error);
+            }
+        }
+
+        function renderTracks(searchTerm = "") {
+            const listEl = document.getElementById('tracks-list');
+            const countEl = document.getElementById('track-count-display');
+            
+            const term = searchTerm.toLowerCase();
+            
+            const filtered = currentTracks.filter(track => {
+                if (currentFilterAuthorId && track.authorId !== currentFilterAuthorId) return false;
+                
+                if (term) {
+                    return track.title.toLowerCase().includes(term) || 
+                           track.genre.toLowerCase().includes(term) || 
+                           track.authorName.toLowerCase().includes(term);
+                }
+                return true;
+            });
+
+            countEl.innerText = `該当: ${filtered.length} 件`;
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="p-4 text-center text-gray-500">該当する音源が見つかりません。</div>`;
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(track => `
+                <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
+                    <div class="flex items-center gap-3 w-full md:w-1/3">
+                        <i class="ph-fill ph-file-audio text-3xl text-gray-700"></i>
+                        <div>
+                            <h3 class="font-bold text-sm break-all">${track.title}</h3>
+                            <p class="text-xs text-gray-600">${track.genre} / by ${track.authorName}</p>
+                        </div>
+                    </div>
+                    <div class="w-full md:flex-1 mt-2 md:mt-0 flex flex-col md:flex-row justify-end items-center gap-3">
+                        <a href="${track.driveUrl}" target="_blank" rel="noopener noreferrer" class="win-btn px-3 py-1 text-xs flex items-center gap-1 w-full md:w-auto justify-center">
+                            <i class="ph-bold ph-play"></i> 試聴 (Drive)
+                        </a>
+                        <a href="${track.downloadUrl}" target="_blank" rel="noopener noreferrer" class="win-btn px-3 py-1 text-xs flex items-center gap-1 w-full md:w-auto justify-center">
+                            <i class="ph-bold ph-download-simple"></i> ダウンロード
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterTracksByAuthor(authorId, authorName) {
+            currentFilterAuthorId = authorId;
+            
+            const alertEl = document.getElementById('author-filter-alert');
+            document.getElementById('author-filter-text').innerText = `「${authorName}」の音源のみ表示中`;
+            alertEl.classList.remove('hidden');
+            
+            document.getElementById('track-search-input').value = ""; 
+            
+            switchPage('tracks');
+            if(currentTracks.length > 0) renderTracks();
+        }
+
+        function clearAuthorFilter() {
+            currentFilterAuthorId = null;
+            document.getElementById('author-filter-alert').classList.add('hidden');
+            renderTracks(document.getElementById('track-search-input').value);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('track-search-input');
+            if(searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    renderTracks(e.target.value);
+                });
+            }
+            
+            document.getElementById('btn-minimize').addEventListener('click', () => {
+                showMessage('最小化しようだなんて思うんじゃぁない！');
+            });
+            document.getElementById('btn-maximize').addEventListener('click', () => {
+                showMessage('もう十分ウィンドウは大きいだろう？　目は節穴かい？');
+            });
+            document.getElementById('btn-close').addEventListener('click', () => {
+                showMessage('これで閉じてもタブは閉じられないぜ！　頭冷やせ！');
+            });
+
+            loadUpdates();
+        });
     </script>
 </body>
 </html>
