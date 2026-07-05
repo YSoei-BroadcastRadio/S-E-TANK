@@ -439,7 +439,12 @@
                             currentAudio.pause();
                             if(currentPlayBtn) currentPlayBtn.textContent = '▶';
                         }
-                        audio.play();
+                        audio.load();
+
+audio.play().catch(err => {
+    console.error(err);
+    showMessage("この音源はブラウザから再生できません。ダウンロードして再生してください。");
+});
                         playBtn.textContent = '⏸'; 
                         currentAudio = audio;
                         currentPlayBtn = playBtn;
