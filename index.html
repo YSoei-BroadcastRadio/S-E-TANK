@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y. SBC S-E-TANK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            background-color: #008080;
+            font-family: 'DotGothic16', "MS UI Gothic", "ＭＳ Ｐゴシック", Tahoma, sans-serif;
+            color: #000;
+        }
+        .win-window {
+            background-color: #d4d0c8;
+            border-top: 1px solid #dfdfdf;
+            border-left: 1px solid #dfdfdf;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080, 2px 2px 4px rgba(0,0,0,0.3);
+            padding: 3px;
+        }
+
+        .win-titlebar {
+            background: linear-gradient(90deg, #0a246a 0%, #a6caf0 100%);
+            color: white;
+            font-weight: bold;
+            padding: 2px 5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+
+        .win-title-btn {
+            background-color: #d4d0c8;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            width: 16px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #000;
+            cursor: pointer;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+        }
+        .win-title-btn:active {
+            border-top: 1px solid #404040;
+            border-left: 1px solid #404040;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
+            padding-top: 2px;
+            padding-left: 1px;
+        }
+
+        .win-btn {
+            background-color: #d4d0c8;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            color: #000;
+            cursor: pointer;
+            text-align: center;
+        }
+        .win-btn:active, .win-btn.active-tab {
+            border-top: 1px solid #404040;
+            border-left: 1px solid #404040;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000, inset -1px -1px 0 #dfdfdf;
+            padding-top: 1px;
+            padding-left: 1px;
+        }
+
+        .win-inset {
+            background-color: #fff;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #808080;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000;
+        }
+
+        .win-divider {
+            border-top: 1px solid #808080;
+            border-bottom: 1px solid #fff;
+            margin: 8px 0;
+        }
+
+        input[type=range].win-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+            margin: 8px 0;
+        }
+        input[type=range].win-slider:focus {
+            outline: none;
+        }
+        input[type=range].win-slider::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #fff;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #808080;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000;
+        }
+        input[type=range].win-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 11px;
+            background: #d4d0c8;
+            margin-top: -7px;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            cursor: pointer;
+        }
+        input[type=range].win-slider::-moz-range-track {
+            width: 100%;
+            height: 6px;
+            background: #fff;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #808080;
+            border-right: 1px solid #fff;
+            border-bottom: 1px solid #fff;
+            box-shadow: inset 1px 1px 0 #000;
+        }
+        input[type=range].win-slider::-moz-range-thumb {
+            height: 18px;
+            width: 11px;
+            background: #d4d0c8;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            border-right: 1px solid #404040;
+            border-bottom: 1px solid #404040;
+            box-shadow: inset 1px 1px 0 #dfdfdf, inset -1px -1px 0 #808080;
+            border-radius: 0;
+            cursor: pointer;
+        }
+
+        .hidden-page {
+            display: none !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-2 md:p-8 flex justify-center items-start">
+
+    <div class="win-window w-full max-w-4xl flex flex-col mt-4">
+        
+        <div class="win-titlebar">
+            <div class="flex items-center gap-1">
+                <i class="ph-fill ph-speaker-hifi text-lg text-yellow-300"></i>
+                <span>Y. SBC S-E-TANK 音楽配布センター</span>
+            </div>
+            <div class="flex gap-1">
+                <button id="btn-minimize" class="win-title-btn">_</button>
+                <button id="btn-maximize" class="win-title-btn">□</button>
+                <button id="btn-close" class="win-title-btn font-bold">×</button>
+            </div>
+        </div>
+
+        <div class="flex gap-2 p-2 pb-0 overflow-x-auto">
+            <button id="tab-home" class="win-btn active-tab px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('home')">メイン</button>
+            <button id="tab-an" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('an')">音源: A. N.</button>
+            <button id="tab-tofu" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('tofu')">音源: 豆腐さん</button>
+            <button id="tab-license" class="win-btn px-4 py-1 text-sm relative top-[1px] whitespace-nowrap" onclick="switchPage('license')">使用条件・規約</button>
+        </div>
+
+        <div class="win-inset p-3 m-2 mt-0 flex-grow" style="min-height: 60vh;">
+            
+            <div id="page-home" class="space-y-4 p-2 text-sm">
+                <div class="flex items-start gap-4 mb-6">
+                    <i class="ph-fill ph-computer-tower text-5xl text-gray-500"></i>
+                    <div>
+                        <h2 class="font-bold text-lg mb-2">Y. SBC S-E-TANK へようこそ！</h2>
+                        <p class="mb-2">当サイトでは、クリエイター向けのフリーBGM素材を配布しています。</p>
+                        <p>上のタブから各作者の音源ページに移動し、試聴・ダウンロードを行ってください。</p>
+                    </div>
+                </div>
+
+                <div class="bg-[#ece9d8] p-3 border border-gray-400">
+                    <h3 class="font-bold border-b border-gray-400 pb-1 mb-2">更新履歴</h3>
+                    <ul class="list-none space-y-2 text-xs">
+                        <li><span class="font-bold mr-2">2026/07/05</span>サイトのデザインをリニューアルしました。</li>
+                        <li><span class="font-bold mr-2">2026/07/01</span>豆腐さんの新曲「Soybean Ambient」を追加しました。</li>
+                        <li><span class="font-bold mr-2">2026/06/15</span>A. N. の音源リストを公開しました。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="page-an" class="hidden-page space-y-4">
+                
+                <div class="bg-[#ffffe1] border border-black p-3 text-sm shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
+                    <div class="flex items-start gap-2">
+                        <i class="ph-fill ph-user text-blue-600 text-lg"></i>
+                        <div>
+                            <p class="font-bold mb-1">作者: A. N.</p>
+                            <p>エレクトロニックやアンビエント系の楽曲を中心に制作しています。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-2 justify-between items-center mb-4 pb-2 win-divider">
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <span class="text-sm">検索(S):</span>
+                        <input type="text" class="search-input win-inset px-2 py-1 text-sm w-full md:w-64 focus:outline-none focus:bg-blue-50" placeholder="曲名、ジャンル...">
+                    </div>
+                </div>
+
+                <div class="space-y-3 track-list">
+                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
+                        <div class="flex items-center gap-3 w-full md:w-1/3">
+                            <i class="ph-fill ph-file-audio text-3xl text-blue-600"></i>
+                            <div>
+                                <h3 class="font-bold text-sm track-title">Neon City Lights</h3>
+                                <p class="text-xs text-gray-600 track-artist">エレクトロニック / BPM: 120</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 flex items-center gap-3">
+                            <button class="play-btn win-btn w-8 h-8 flex items-center justify-center font-bold text-lg">▶</button>
+                            <div class="flex-grow flex flex-col">
+                                <input type="range" class="win-slider seek-bar" value="0" step="0.1" title="シークバー">
+                                <span class="time-display text-xs text-right mt-1">0:00 / 0:00</span>
+                            </div>
+                            <audio preload="metadata" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+                        </div>
+                        <div class="w-full md:w-auto mt-2 md:mt-0 flex justify-end">
+                            <a href="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
+                                <i class="ph-bold ph-download-simple"></i> 保存(S)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
+                        <div class="flex items-center gap-3 w-full md:w-1/3">
+                            <i class="ph-fill ph-file-audio text-3xl text-purple-600"></i>
+                            <div>
+                                <h3 class="font-bold text-sm track-title">Deep Space Journey</h3>
+                                <p class="text-xs text-gray-600 track-artist">アンビエント / BPM: 70</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 flex items-center gap-3">
+                            <button class="play-btn win-btn w-8 h-8 flex items-center justify-center font-bold text-lg">▶</button>
+                            <div class="flex-grow flex flex-col">
+                                <input type="range" class="win-slider seek-bar" value="0" step="0.1" title="シークバー">
+                                <span class="time-display text-xs text-right mt-1">0:00 / 0:00</span>
+                            </div>
+                            <audio preload="metadata" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3"></audio>
+                        </div>
+                        <div class="w-full md:w-auto mt-2 md:mt-0 flex justify-end">
+                            <a href="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
+                                <i class="ph-bold ph-download-simple"></i> 保存(S)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-tofu" class="hidden-page space-y-4">
+                
+                <div class="bg-[#ffffe1] border border-black p-3 text-sm shadow-[2px_2px_0_rgba(0,0,0,0.2)] mb-4">
+                    <div class="flex items-start gap-2">
+                        <i class="ph-fill ph-user text-green-600 text-lg"></i>
+                        <div>
+                            <p class="font-bold mb-1">作者: 豆腐さん</p>
+                            <p>アコースティックで落ち着いた、日常系BGMを得意としています。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row gap-2 justify-between items-center mb-4 pb-2 win-divider">
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <span class="text-sm">検索(S):</span>
+                        <input type="text" class="search-input win-inset px-2 py-1 text-sm w-full md:w-64 focus:outline-none focus:bg-green-50" placeholder="曲名、ジャンル...">
+                    </div>
+                </div>
+
+                <div class="space-y-3 track-list">
+                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
+                        <div class="flex items-center gap-3 w-full md:w-1/3">
+                            <i class="ph-fill ph-file-audio text-3xl text-green-600"></i>
+                            <div>
+                                <h3 class="font-bold text-sm track-title">Morning Dew</h3>
+                                <p class="text-xs text-gray-600 track-artist">アコースティック / BPM: 85</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 flex items-center gap-3">
+                            <button class="play-btn win-btn w-8 h-8 flex items-center justify-center font-bold text-lg">▶</button>
+                            <div class="flex-grow flex flex-col">
+                                <input type="range" class="win-slider seek-bar" value="0" step="0.1" title="シークバー">
+                                <span class="time-display text-xs text-right mt-1">0:00 / 0:00</span>
+                            </div>
+                            <audio preload="metadata" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
+                        </div>
+                        <div class="w-full md:w-auto mt-2 md:mt-0 flex justify-end">
+                            <a href="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
+                                <i class="ph-bold ph-download-simple"></i> 保存(S)
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="track-item bg-[#ece9d8] border border-gray-400 p-3 flex flex-col md:flex-row items-center gap-4">
+                        <div class="flex items-center gap-3 w-full md:w-1/3">
+                            <i class="ph-fill ph-file-audio text-3xl text-emerald-700"></i>
+                            <div>
+                                <h3 class="font-bold text-sm track-title">Soybean Ambient</h3>
+                                <p class="text-xs text-gray-600 track-artist">ヒーリング / BPM: 60</p>
+                            </div>
+                        </div>
+                        <div class="w-full md:w-1/2 flex items-center gap-3">
+                            <button class="play-btn win-btn w-8 h-8 flex items-center justify-center font-bold text-lg">▶</button>
+                            <div class="flex-grow flex flex-col">
+                                <input type="range" class="win-slider seek-bar" value="0" step="0.1" title="シークバー">
+                                <span class="time-display text-xs text-right mt-1">0:00 / 0:00</span>
+                            </div>
+                            <audio preload="metadata" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"></audio>
+                        </div>
+                        <div class="w-full md:w-auto mt-2 md:mt-0 flex justify-end">
+                            <a href="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" download class="win-btn px-4 py-1 text-sm flex items-center gap-1 w-full md:w-auto justify-center">
+                                <i class="ph-bold ph-download-simple"></i> 保存(S)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-license" class="hidden-page space-y-4 p-2 text-sm">
+                <h2 class="font-bold border-b border-gray-400 pb-1 text-base">音楽素材の利用規約</h2>
+                
+                <div class="bg-[#ece9d8] p-4 border border-gray-400 h-64 overflow-y-auto win-inset">
+                    <p class="mb-3">本サイト（Y. SBC S-E-TANK）で配布している音源ファイルは、以下の条件の範囲内で自由にご利用いただけます。</p>
+                    
+                    <h3 class="font-bold mt-4 mb-1">【許可されていること】</h3>
+                    <ul class="list-disc pl-5 mb-3 space-y-1">
+                        <li>個人、法人を問わず商用利用可能です。</li>
+                        <li>YouTube等の動画配信、ゲーム開発、ポッドキャスト、ラジオ放送などでの使用。</li>
+                        <li>音源のカット、フェードイン・フェードアウト、ループ処理、エフェクトの追加などの加工。</li>
+                    </ul>
+
+                    <h3 class="font-bold mt-4 mb-1">【禁止されていること】</h3>
+                    <ul class="list-disc pl-5 mb-3 space-y-1">
+                        <li>音源ファイル自体の二次配布、販売（加工後も不可）。</li>
+                        <li>「作業用BGM」など、音楽の聴取のみを主目的とした動画やコンテンツの作成・公開。</li>
+                        <li>違法サイト、公序良俗に反するコンテンツでの使用。</li>
+                        <li>著作権を偽る行為（「自分で作曲した」と発言するなど）。</li>
+                    </ul>
+
+                    <h3 class="font-bold mt-4 mb-1">【クレジット表記について】</h3>
+                    <p>クレジット表記は任意ですが、記載していただけると非常に助かります。<br>
+                    例： <code>BGM: Y. SBC S-E-TANK (https://example.com)</code></p>
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button class="win-btn px-6 py-1" onclick="switchPage('home')">同意して戻る</button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-1 border-t border-[#808080] pt-1 px-2 text-xs flex justify-between bg-[#d4d0c8]">
+            <span>準備完了</span>
+            <span class="win-inset px-2 py-px shadow-none">3 オブジェクト</span>
+        </div>
+    </div>
+    <div id="win-message-box" class="fixed inset-0 bg-transparent flex items-center justify-center z-[100] hidden">
+        <div class="win-window w-80 shadow-[2px_2px_10px_rgba(0,0,0,0.5)] relative bg-[#d4d0c8]">
+            <div class="win-titlebar">
+                <span>警告</span>
+                <button class="win-title-btn font-bold" onclick="closeMessage()">×</button>
+            </div>
+            <div class="p-4 flex flex-col items-center text-sm">
+                <div class="flex items-center gap-4 mb-6 w-full">
+                    <i class="ph-fill ph-warning-circle text-4xl text-yellow-500 drop-shadow-sm"></i>
+                    <p id="win-message-text" class="flex-grow font-bold"></p>
+                </div>
+                <button class="win-btn px-8 py-1" onclick="closeMessage()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchPage(pageId) {
+            const pages = ['home', 'an', 'tofu', 'license'];
+            
+            pages.forEach(id => {
+                const pageEl = document.getElementById('page-' + id);
+                const tabEl = document.getElementById('tab-' + id);
+                if (pageEl) pageEl.classList.add('hidden-page');
+                if (tabEl) tabEl.classList.remove('active-tab');
+            });
+
+            const targetPage = document.getElementById('page-' + pageId);
+            const targetTab = document.getElementById('tab-' + pageId);
+            if (targetPage) targetPage.classList.remove('hidden-page');
+            if (targetTab) targetTab.classList.add('active-tab');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const tracks = document.querySelectorAll('.track-item');
+            let currentAudio = null;
+            let currentPlayBtn = null;
+
+            const formatTime = (seconds) => {
+                if (isNaN(seconds)) return "0:00";
+                const m = Math.floor(seconds / 60);
+                const s = Math.floor(seconds % 60);
+                return `${m}:${s.toString().padStart(2, '0')}`;
+            };
+
+            tracks.forEach(track => {
+                const audio = track.querySelector('audio');
+                const playBtn = track.querySelector('.play-btn');
+                const seekBar = track.querySelector('.seek-bar');
+                const timeDisplay = track.querySelector('.time-display');
+
+                audio.addEventListener('loadedmetadata', () => {
+                    timeDisplay.textContent = `0:00 / ${formatTime(audio.duration)}`;
+                });
+
+                playBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        if (currentAudio && currentAudio !== audio) {
+                            currentAudio.pause();
+                            if(currentPlayBtn) currentPlayBtn.textContent = '▶';
+                        }
+                        audio.play();
+                        playBtn.textContent = '⏸'; 
+                        currentAudio = audio;
+                        currentPlayBtn = playBtn;
+                    } else {
+                        audio.pause();
+                        playBtn.textContent = '▶'; 
+                    }
+                });
+
+                audio.addEventListener('timeupdate', () => {
+                    const percent = (audio.currentTime / audio.duration) * 100 || 0;
+                    seekBar.value = percent;
+                    timeDisplay.textContent = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration)}`;
+                });
+
+                seekBar.addEventListener('input', (e) => {
+                    const seekTime = (e.target.value / 100) * audio.duration;
+                    audio.currentTime = seekTime;
+                });
+
+                audio.addEventListener('ended', () => {
+                    playBtn.textContent = '▶';
+                    seekBar.value = 0;
+                });
+            });
+
+            const searchInputs = document.querySelectorAll('.search-input');
+            
+            searchInputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    const page = e.target.closest('div[id^="page-"]');
+                    const pageTracks = page.querySelectorAll('.track-item');
+
+                    pageTracks.forEach(item => {
+                        const title = item.querySelector('.track-title').textContent.toLowerCase();
+                        const artist = item.querySelector('.track-artist').textContent.toLowerCase();
+
+                        if (title.includes(searchTerm) || artist.includes(searchTerm)) {
+                            item.style.display = 'flex';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+            
+            document.getElementById('btn-minimize').addEventListener('click', () => {
+                showMessage('最小化しようだなんて思うんじゃぁない！');
+            });
+            
+            document.getElementById('btn-maximize').addEventListener('click', () => {
+                showMessage('もう十分ウィンドウは大きいだろう？目は節穴かい？');
+            });
+            
+            document.getElementById('btn-close').addEventListener('click', () => {
+                showMessage('これで閉じてもタブは閉じられないぜ！頭冷やせ！');
+            });
+        });
+        function showMessage(text) {
+            document.getElementById('win-message-text').innerText = text;
+            document.getElementById('win-message-box').classList.remove('hidden');
+        }
+
+        function closeMessage() {
+            document.getElementById('win-message-box').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
